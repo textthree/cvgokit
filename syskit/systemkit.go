@@ -25,16 +25,30 @@ func GetStack() string {
 	return string(debug.Stack())
 }
 
-// 简单的执行系统命令并打印结果
-func Exec(cmd string, params ...string) {
-	command := exec.Command(cmd, params...)
+// 执行文本命令
+func ExecCmdText(cmd string) string {
+	arr := strings.Split(cmd, " ")
+	command := exec.Command(arr[0], arr[1:]...)
 	var out bytes.Buffer
 	command.Stdout = &out
 	err := command.Run()
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(out.String())
+	return (out.String())
+}
+
+// syskit.Exec("go", "run", "scripts/cvgo/codegen/curdl.go", "c")
+// 执行系统命令并返回结果
+func ExecGetResult(params ...string) string {
+	command := exec.Command(params[0], params[1:]...)
+	// 获取命令的输出
+	output, err := command.Output()
+	if err != nil {
+		fmt.Println("Error executing command:", err)
+		return ""
+	}
+	return string(output)
 }
 
 // 执行系统命令，并且返回执行的命令和执行结果

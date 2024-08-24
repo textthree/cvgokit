@@ -363,7 +363,7 @@ func FileExist(filename string) bool {
 }
 
 // 创建文件并写入内容
-func FilePutContents(filePath, content string) {
+func FilePutContents(filePath, content string) error {
 	// 确保目录存在
 	dir := filepath.Dir(filePath)
 	EnsureDirExists(dir)
@@ -371,17 +371,16 @@ func FilePutContents(filePath, content string) {
 	// 创建文件
 	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("创建文件 "+filePath+" 失败", err)
-		return
+		return errors.New(err.Error())
 	}
 	defer file.Close()
 
 	// 写入内容到文件
 	_, err = file.WriteString(content)
 	if err != nil {
-		fmt.Println("往文件 "+filePath+" 写入内容失败", err)
-		return
+		return errors.New(err.Error())
 	}
+	return nil
 }
 
 // 读取文件的内容
