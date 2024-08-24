@@ -2,9 +2,9 @@ package filekit
 
 import (
 	"bufio"
-	"cvgo/kit/strkit"
 	"errors"
 	"fmt"
+	"github.com/textthree/cvgokit/strkit"
 	"io"
 	"mime/multipart"
 	"os"

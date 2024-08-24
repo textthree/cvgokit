@@ -3,11 +3,11 @@ package cryptokit
 import (
 	"crypto/md5"
 	"crypto/sha1"
-	"cvgo/kit/timekit"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"github.com/spf13/cast"
+	"github.com/textthree/cvgokit/timekit"
 	"hash/crc32"
 	"io/ioutil"
 	"net/url"

@@ -8,10 +8,10 @@
 package mapkit
 
 import (
-	"cvgo/kit/strkit"
-	"cvgo/kit/timekit"
 	"errors"
 	"fmt"
+	"github.com/textthree/cvgokit/strkit"
+	"github.com/textthree/cvgokit/timekit"
 	"reflect"
 	"sort"
 	"strconv"
