@@ -14,35 +14,6 @@ import (
 	"unicode"
 )
 
-// 执行系统命令，并且返回执行的命令和执行结果
-func ExecSysCmd(commandName string, params []string) (string, string) {
-	cmd := exec.Command(commandName, params...)
-	//fmt.Println(modules.Args)
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Println(err)
-		return "", ""
-	}
-	cmd.Start()
-	reader := bufio.NewReader(stdout)
-	//实时循环读取输出流中的一行内容
-	strings := ""
-	for {
-		line, err2 := reader.ReadString('\n')
-		if err2 != nil || io.EOF == err2 {
-			break
-		}
-		//fmt.Println(line)
-		strings += line
-	}
-	cmd.Wait()
-	commandStr := ""
-	for _, v := range cmd.Args {
-		commandStr += " " + v
-	}
-	return commandStr, strings
-}
-
 // 获取当前进程 Id
 func Getpid() int {
 	return os.Getpid()
@@ -54,6 +25,44 @@ func GetStack() string {
 	return string(debug.Stack())
 }
 
+// 简单的执行系统命令并打印结果
+func Exec(cmd string, params ...string) {
+	command := exec.Command(cmd, params...)
+	var out bytes.Buffer
+	command.Stdout = &out
+	err := command.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(out.String())
+}
+
+// 执行系统命令，并且返回执行的命令和执行结果
+func Exec3(commandName string, params ...string) (command string, output string) {
+	cmd := exec.Command(commandName, params...)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	cmd.Start()
+	reader := bufio.NewReader(stdout)
+	// 实时循环读取输出流中的一行内容
+	for {
+		line, err2 := reader.ReadString('\n')
+		if err2 != nil || io.EOF == err2 {
+			break
+		}
+		//fmt.Println(line)
+		output += line
+	}
+	cmd.Wait()
+	for _, v := range cmd.Args {
+		command += " " + v
+	}
+	return
+}
+
 // 执行系统命令
 // 返回： 0: 成功; 1: 失败
 // 从命令的结果中返回最后一行
@@ -61,7 +70,7 @@ func GetStack() string {
 //
 //	"ls -a"
 //	"/bin/bash -c \"ls -a\""
-func Exec(command string, output *[]string, returnVar *int) string {
+func Exec2(command string, output *[]string, returnVar *int) string {
 	q := rune(0)
 	parts := strings.FieldsFunc(command, func(r rune) bool {
 		switch {
