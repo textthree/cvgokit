@@ -51,12 +51,17 @@ func ExecGetResult(params ...string) string {
 	return string(output)
 }
 
-// 执行系统命令，并且返回执行的命令和执行结果
-func Exec3(commandName string, params ...string) (command string, output string) {
+// 执行系统命令，并且实时逐行打印输出结果
+func ExecWithOutput(commandName string, params ...string) (output string, err error) {
+	var command string
 	cmd := exec.Command(commandName, params...)
+	for _, v := range cmd.Args {
+		command += " " + v
+	}
+	fmt.Println("command:", command)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("fkdjslfkds")
 		return
 	}
 	cmd.Start()
@@ -64,61 +69,18 @@ func Exec3(commandName string, params ...string) (command string, output string)
 	// 实时循环读取输出流中的一行内容
 	for {
 		line, err2 := reader.ReadString('\n')
-		if err2 != nil || io.EOF == err2 {
+		if err2 == io.EOF {
 			break
 		}
-		//fmt.Println(line)
+		if err2 != nil {
+			err = err2
+			return
+		}
+		fmt.Printf(line)
 		output += line
 	}
 	cmd.Wait()
-	for _, v := range cmd.Args {
-		command += " " + v
-	}
 	return
-}
-
-// 执行系统命令
-// 返回： 0: 成功; 1: 失败
-// 从命令的结果中返回最后一行
-// 命令格式，例如:
-//
-//	"ls -a"
-//	"/bin/bash -c \"ls -a\""
-func Exec2(command string, output *[]string, returnVar *int) string {
-	q := rune(0)
-	parts := strings.FieldsFunc(command, func(r rune) bool {
-		switch {
-		case r == q:
-			q = rune(0)
-			return false
-		case q != rune(0):
-			return false
-		case unicode.In(r, unicode.Quotation_Mark):
-			q = r
-			return false
-		default:
-			return unicode.IsSpace(r)
-		}
-	})
-	// 去掉两边的“and”
-	for i, v := range parts {
-		f, l := v[0], len(v)
-		if l >= 2 && (f == '"' || f == '\'') {
-			parts[i] = v[1 : l-1]
-		}
-	}
-	cmd := exec.Command(parts[0], parts[1:]...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		*returnVar = 1
-		return ""
-	}
-	*returnVar = 0
-	*output = strings.Split(strings.TrimRight(string(out), "\n"), "\n")
-	if l := len(*output); l > 0 {
-		return (*output)[l-1]
-	}
-	return ""
 }
 
 /*/ 返回目录中的可用空间，linux环境
