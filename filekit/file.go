@@ -357,8 +357,8 @@ func Rename(oldDir, newDir string) error {
 }
 
 // 判断文件是否存在
-func FileExist(filename string) bool {
-	_, err := os.Stat(filename)
+func FileExist(filepath string) bool {
+	_, err := os.Stat(filepath)
 	return err == nil || os.IsExist(err)
 }
 
