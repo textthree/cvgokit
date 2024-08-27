@@ -97,6 +97,21 @@ func CamelToSnake(s string) string {
 	return snake
 }
 
+
+// 将驼峰 PascalCase 或 CamelCase 转换为 kebab-case （中横线）
+func CamelToKebabCase(s string) string {
+	// 定义正则表达式，用于匹配大写字母和缩写
+	var matchFirstCap = regexp.MustCompile("([a-z0-9])([A-Z])")
+	var matchAllCap = regexp.MustCompile("([A-Z])([A-Z][a-z])")
+
+	// 添加中划线并转换为小写
+	snake := matchFirstCap.ReplaceAllString(s, "${1}-${2}")
+	snake = matchAllCap.ReplaceAllString(snake, "${1}-${2}")
+	snake = strings.ToLower(snake)
+
+	return snake
+}
+
 // 下划线转大驼峰
 // SnakeToPascalCase 将 snake_case 转换为 PascalCase
 func SnakeToPascalCase(input string) string {
@@ -439,6 +454,7 @@ func Strripos(haystack, needle string, offset int) int {
 }
 
 // 字符串替换，在 subject 中将 old 替换成 new
+// count：替换几次， 小于 0 时为贪婪模式
 func StrReplace(old, new, subject string, count ...int) string {
 	num := -1
 	if len(count) > 0 {
