@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/spf13/cast"
 	"github.com/textthree/cvgokit/strkit"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -385,6 +387,27 @@ func FilePutContents(filePath, content string) error {
 
 // 读取文件的内容
 func FileGetContents(filePath string) (string, error) {
+	if strings.HasPrefix(filePath, "http://") || strings.HasPrefix(filePath, "https://") {
+		// 发起 HTTP GET 请求
+		resp, err := http.Get(filePath)
+		if err != nil {
+			return "", err
+		}
+		// 确保关闭响应体
+		defer resp.Body.Close()
+
+		// 检查 HTTP 响应状态码
+		if resp.StatusCode != http.StatusOK {
+			return "", errors.New("Error: HTTP status" + cast.ToString(resp.StatusCode))
+		}
+
+		// 读取响应体
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+		return string(body), nil
+	}
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
